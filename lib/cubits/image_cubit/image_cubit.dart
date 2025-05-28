@@ -1,8 +1,20 @@
-import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_gallery_task3/repositories/image_repository.dart';
 
-part 'image_state.dart';
+import 'image_state.dart';
 
 class ImageCubit extends Cubit<ImageState> {
-  ImageCubit() : super(ImageInitial());
+  final ImageRepository repository;
+
+  ImageCubit(this.repository) : super(ImageInitial());
+
+  Future<void> loadImages({int page = 1}) async {
+    try {
+      emit(ImageLoading());
+      final images = await repository.fetchImages(page: page);
+      emit(ImageLoaded(images));
+    } catch (e) {
+      emit(ImageError('Failed to load images.'));
+    }
+  }
 }
