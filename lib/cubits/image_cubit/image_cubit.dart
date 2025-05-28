@@ -5,17 +5,25 @@ import 'image_state.dart';
 
 class ImageCubit extends Cubit<ImageState> {
   final ImageRepository repository;
+
   int _page = 1;
   bool isLoadingMore = false;
+  String _query = 'random';
 
   ImageCubit(this.repository) : super(ImageInitial());
+
+  Future<void> searchImages(String query) async {
+    _query = query;
+    _page = 1;
+    await loadImages(page: 1);
+  }
 
   Future<void> loadImages({int page = 1}) async {
     if (isLoadingMore && page != 1) return;
     try {
       if (page == 1) emit(ImageLoading());
       isLoadingMore = true;
-      final newImages = await repository.fetchImages(page: page);
+      final newImages = await repository.fetchImages(query: _query, page: page);
       if (state is ImageLoaded && page != 1) {
         final oldImages = (state as ImageLoaded).images;
         emit(ImageLoaded([...oldImages, ...newImages]));
