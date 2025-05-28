@@ -3,7 +3,7 @@ import '../models/image_model.dart';
 
 class ImageRepository {
   final Dio _dio = Dio();
-  final String _accessKey = 'YOUR_UNSPLASH_ACCESS_KEY';
+  final String _accessKey = 'svGkOP6U8rtTxrf01cUDFb8hztLUphdKgA4trOf9ztE';
 
   Future<List<ImageModel>> fetchImages({String query = 'random', int page = 1}) async {
     final response = await _dio.get(
