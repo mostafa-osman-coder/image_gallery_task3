@@ -31,7 +31,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Unsplash Gallery')),
+      appBar: AppBar(title: const Text('Image Gallery')),
       body: Column(
         children: [
           Padding(
