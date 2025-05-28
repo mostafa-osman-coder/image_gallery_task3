@@ -16,7 +16,6 @@ class GalleryScreen extends StatefulWidget {
 class _GalleryScreenState extends State<GalleryScreen> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  String _searchQuery = '';
 
   @override
   void initState() {
@@ -32,77 +31,71 @@ class _GalleryScreenState extends State<GalleryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Image Gallery')),
-      body: BlocBuilder<ImageCubit, ImageState>(
-        builder: (context, state) {
-          if (state is ImageLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is ImageLoaded) {
-            final filtered = state.images
-                .where((img) => img.author.toLowerCase().contains(_searchQuery))
-                .toList();
-
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search by author...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        _searchQuery = value.toLowerCase();
-                      });
-                    },
-                  ),
+      appBar: AppBar(title: const Text('Unsplash Gallery')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              onSubmitted: (value) {
+                context.read<ImageCubit>().searchImages(value.trim());
+              },
+              decoration: InputDecoration(
+                hintText: 'Search images...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                Expanded(
-                  child: GridView.builder(
+              ),
+            ),
+          ),
+          Expanded(
+            child: BlocBuilder<ImageCubit, ImageState>(
+              builder: (context, state) {
+                if (state is ImageLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is ImageLoaded) {
+                  return GridView.builder(
                     controller: _scrollController,
-                    itemCount: filtered.length,
+                    padding: const EdgeInsets.all(8),
+                    itemCount: state.images.length,
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                     ),
-                    padding: const EdgeInsets.all(8),
                     itemBuilder: (context, index) {
-                      final image = filtered[index];
+                      final image = state.images[index];
                       return GestureDetector(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => FullScreenImage(url: image.downloadUrl),
+                              builder: (_) => FullScreenImage(url: image.imageUrl),
                             ),
                           );
                         },
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
                           child: CachedNetworkImage(
-                            imageUrl: image.downloadUrl,
-                            placeholder: (context, url) =>
-                                Container(color: Colors.grey[300]),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
+                            imageUrl: image.imageUrl,
+                            placeholder: (context, url) => Container(color: Colors.grey[300]),
+                            errorWidget: (context, url, error) => const Icon(Icons.error),
                             fit: BoxFit.cover,
                           ),
                         ),
                       );
                     },
-                  ),
-                ),
-              ],
-            );
-          } else if (state is ImageError) {
-            return Center(child: Text(state.message));
-          }
-          return const SizedBox.shrink();
-        },
+                  );
+                } else if (state is ImageError) {
+                  return Center(child: Text(state.message));
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

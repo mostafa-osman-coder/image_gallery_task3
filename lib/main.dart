@@ -16,7 +16,7 @@ class GalleryApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Gallery App',
+      title: 'Unsplash Gallery',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: RepositoryProvider(
         create: (_) => ImageRepository(),
